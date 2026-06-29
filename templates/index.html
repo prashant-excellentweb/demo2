@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddy — AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css?v=12">
+    <link rel="stylesheet" href="/static/css/plus-menu.css?v=1">
+</head>
+<body>
+    <div class="app-wrapper">
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+                <div class="sidebar-header-row">
+                    <div class="sidebar-logo" id="logo-home">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5153-4.9108 6.0462 6.0462 0 0 0-4.7471-3.124 5.9847 5.9847 0 0 0-5.188-1.587A6.0565 6.0565 0 0 0 4.9701 4.108 5.9847 5.9847 0 0 0 4.4548 9.0189 6.0462 6.0462 0 0 0 9.2019 12.1429 5.9847 5.9847 0 0 0 14.3899 13.7299a6.0565 6.0565 0 0 0 6.861-3.9089h.031a.031.031 0 0 0 .031-.031v-.031a5.9847 5.9847 0 0 0-.031-1.9379h.031a.031.031 0 0 0 .031-.031v-.031Z"></path></svg>
+                    </div>
+                    <button id="new-chat-btn" class="sidebar-new-btn" title="New Chat">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+
+            <div class="sidebar-history-container">
+                <div class="projects-header">
+                    <span>Projects</span>
+                    <button id="new-project-btn" class="new-project-btn" title="New Project">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+                <div class="projects-list" id="projects-list"></div>
+
+                <div class="recents-header">
+                    <span>Recent Chats</span>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="chat-history" id="chat-history"></div>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info-pill">
+                    <div class="user-block" id="profile-btn">
+                        <div class="user-avatar-small">
+                            {{ display_name[:1] if display_name else user[:1] }}
+                        </div>
+                        <div class="user-details-mini">
+                            <span class="user-display-name">{{ display_name }}</span>
+                            <span class="user-plan-text">Free plan</span>
+                        </div>
+                    </div>
+                    <a href="/logout" class="logout-pill-btn" title="Logout">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="main-header">
+                <div class="header-active-title" id="active-chat-title">New Chat</div>
+            </div>
+
+            <div class="chat-viewport">
+                <div class="chat-container" id="chat-container">
+                    <div class="initial-message-container">
+                        <div class="initial-message">What can I help you with today?</div>
+                        <div class="initial-submessage">Ask anything, attach files, or enable web research from the + menu.</div>
+                        <div class="temp-chat-teaser" id="temp-chat-toggle-initial">
+                            <div class="temp-chat-teaser-icon">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            </div>
+                            <div class="temp-chat-teaser-text">
+                                <strong>Temporary Chat</strong>
+                                <span>Messages won't be saved in history</span>
+                            </div>
+                            <div class="temp-chat-teaser-switch">
+                                <input type="checkbox" id="temp-chat-checkbox-initial">
+                                <span class="slider round"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-floating-zone">
+                <div class="pill-input-container">
+
+                    <!-- NEW: ChatGPT-style + button + dropdown -->
+                    <div class="plus-menu-wrapper">
+                        <button class="pill-add-btn plus-btn" id="plus-btn" title="Add" type="button" aria-haspopup="true" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+
+                        <div class="plus-menu" id="plus-menu" role="menu" aria-hidden="true">
+                            <button class="plus-menu-item" data-action="photos" role="menuitem">
+                                <span class="pmi-icon">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                </span>
+                                <span class="pmi-label">Add photos &amp; files</span>
+                            </button>
+
+                            <div class="plus-menu-divider"></div>
+
+                            <button class="plus-menu-item" data-action="websearch" role="menuitem">
+                                <span class="pmi-icon">
+                                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 0 20"></path><path d="M12 2a15.3 15.3 0 0 0 0 20"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                                 </span>
+                                 <span class="pmi-label">Web research</span>
+                                 <span class="pmi-check" data-check="websearch" aria-hidden="true">
+                                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                 </span>
+                             </button>
+
+                        </div>
+                    </div>
+
+                    <!-- Legacy buttons kept (hidden) for app.js compatibility -->
+                    <button class="pill-add-btn" id="attach-btn" title="Attach file" style="display:none" aria-hidden="true" tabindex="-1"></button>
+                    <button class="pill-add-btn" id="websearch-btn" title="Web search" style="display:none" aria-hidden="true" tabindex="-1"></button>
+
+                    <textarea id="chat-input" placeholder="Ask anything" rows="1"></textarea>
+                    <div class="pill-actions">
+                        <button id="mic-btn" class="pill-icon-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                        </button>
+                        <button id="send-btn" class="pill-send-btn ripple" disabled>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File attachments display -->
+                <div class="file-attachments" id="file-attachments" style="display: none;">
+                    <div class="attachments-header">
+                        <span>Attachments</span>
+                        <button id="clear-attachments" class="clear-btn">Clear all</button>
+                    </div>
+                    <div class="attachments-list" id="attachments-list"></div>
+                </div>
+
+                <!-- Web search results display -->
+                <div class="web-search-results" id="web-search-results" style="display: none;">
+                    <div class="search-header">
+                        <span>Web Search Results</span>
+                        <button id="clear-search" class="clear-btn">Clear</button>
+                    </div>
+                    <div class="search-results-list" id="search-results-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content auth-card">
+            <button id="close-modal-x" class="modal-close-x">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="auth-header">
+                <h2>Profile Settings</h2>
+            </div>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="setting-display-name" value="{{ display_name }}">
+            </div>
+            <div class="form-group">
+                <label>New Password (Optional)</label>
+                <input type="password" id="setting-password" placeholder="Leave blank to keep current">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" id="save-settings-btn" style="flex:1;">Save Changes</button>
+            </div>
+            <div id="settings-msg"></div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
+    <script src="/static/js/app.js?v=11"></script>
+
+    <script>
+    (function () {
+        const toggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (!toggle || !sidebar) return;
+        const close = () => { sidebar.classList.remove('open'); overlay?.classList.remove('active'); };
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active');
+        });
+        overlay?.addEventListener('click', close);
+    })();
+    </script>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="file-input" multiple style="display: none;" accept="image/*,.pdf,.txt,.doc,.docx,.csv,.json">
+    <input type="file" id="image-input" multiple style="display: none;" accept="image/*">
+
+    <!-- Plus-menu wiring (after app.js so legacy listeners exist) -->
+    <script>
+    (function () {
+        const plusBtn   = document.getElementById('plus-btn');
+        const plusMenu  = document.getElementById('plus-menu');
+        const fileInput = document.getElementById('file-input');
+        const imageInput= document.getElementById('image-input');
+        const websearchBtn = document.getElementById('websearch-btn');
+
+        if (!plusBtn || !plusMenu) return;
+
+        function openMenu() {
+            plusMenu.classList.add('open');
+            plusBtn.classList.add('active');
+            plusBtn.setAttribute('aria-expanded', 'true');
+            plusMenu.setAttribute('aria-hidden', 'false');
+        }
+        function closeMenu() {
+            plusMenu.classList.remove('open');
+            plusBtn.classList.remove('active');
+            plusBtn.setAttribute('aria-expanded', 'false');
+            plusMenu.setAttribute('aria-hidden', 'true');
+        }
+        function toggleMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            plusMenu.classList.contains('open') ? closeMenu() : openMenu();
+        }
+
+        plusBtn.addEventListener('click', toggleMenu);
+
+        document.addEventListener('click', (e) => {
+            if (!plusMenu.contains(e.target) && e.target !== plusBtn && !plusBtn.contains(e.target)) {
+                closeMenu();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMenu();
+        });
+
+        // Image input forwards selection to legacy #file-input handler
+        imageInput.addEventListener('change', () => {
+            if (imageInput.files && imageInput.files.length) {
+                const dt = new DataTransfer();
+                Array.from(imageInput.files).forEach(f => dt.items.add(f));
+                fileInput.files = dt.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                imageInput.value = '';
+            }
+        });
+
+        plusMenu.querySelectorAll('.plus-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = item.dataset.action;
+
+                switch (action) {
+                    case 'photos':
+                        fileInput.click();
+                        closeMenu();
+                        break;
+                    case 'image':
+                        imageInput.click();
+                        closeMenu();
+                        break;
+                    case 'websearch':
+                        // Toggle visual automatic search mode
+                        const checkEl = plusMenu.querySelector('[data-check="websearch"]');
+                        const isOn = item.classList.toggle('checked');
+                        if (checkEl) checkEl.style.opacity = isOn ? '1' : '0';
+                        window.webSearchEnabled = isOn;
+                        // Manual prompt is no longer needed here as it's automatic on send now
+                        closeMenu();
+                        break;
+                    case 'thinking':
+                    case 'more':
+                        // Reserved — no-op for now
+                        closeMenu();
+                        break;
+                }
+            });
+        });
+    })();
+    </script>
+</body>
+</html>
