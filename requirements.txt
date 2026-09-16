@@ -1,11 +1,19 @@
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
-jinja2>=3.1.0
 python-multipart>=0.0.12
+
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
 python-dotenv>=1.0.0
+
 sqlalchemy>=2.0.0
-passlib[bcrypt]>=1.7.4
-python-jose[cryptography]>=3.3.0
-requests>=2.32.0
-openai>=1.55.0
 alembic>=1.14.0
+
+# bcrypt directly rather than passlib: passlib is unmaintained and still
+# imports the `crypt` module that was removed in Python 3.13.
+bcrypt>=4.2.0
+PyJWT>=2.9.0
+
+openai>=1.55.0
+httpx>=0.27.0
+pypdf>=5.1.0

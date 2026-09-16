@@ -5,14 +5,26 @@ venv/
 
 # Database
 *.db
+*.db-wal
+*.db-shm
 *.sqlite3
+chatgpt.db.backup-*
+
+# Uploaded attachments (stored on disk, referenced by the attachments table)
+var/
 
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
-build/
+.pytest_cache/
+.ruff_cache/
+
+# Node / frontend build
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.local
 
 # IDE
 .idea/
